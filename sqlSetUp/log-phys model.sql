@@ -1,6 +1,6 @@
 CREATE TABLE admin_staff (
  id SERIAL NOT NULL,
- employee_id VARCHAR(50) NOT NULL,
+ employee_id VARCHAR(50) NOT NULL UNIQUE,
  first_name VARCHAR(50),
  last_name VARCHAR(50),
  street_name VARCHAR(50),
@@ -16,7 +16,7 @@ CREATE TABLE instuctor (
  first_name VARCHAR(50),
  last_name VARCHAR(50),
  age VARCHAR(10),
- personal_number VARCHAR(12) NOT NULL,
+ personal_number VARCHAR(12) NOT NULL UNIQUE,
  street_name VARCHAR(50),
  street_number VARCHAR(10),
  zip VARCHAR(5)
@@ -59,7 +59,7 @@ ALTER TABLE schedule ADD CONSTRAINT PK_schedule PRIMARY KEY (id);
 
 
 CREATE TABLE sibling_dicount (
- parent_id SERIAL NOT NULL,
+ parent_id INT NOT NULL,
  amount NUMERIC(32)
 );
 
@@ -79,21 +79,21 @@ CREATE TABLE student (
  first_name VARCHAR(50) NOT NULL,
  last_name VARCHAR(50) NOT NULL,
  age VARCHAR(10) NOT NULL,
- personal_number VARCHAR(12) NOT NULL,
+ personal_number VARCHAR(12) NOT NULL UNIQUE,
  street_name VARCHAR(50),
  street_number VARCHAR(10),
  zip VARCHAR(5),
  number_of_lessons INT,
  current_skill VARCHAR(50) NOT NULL,
  number_of_instruments_rented INT,
- parent_id SERIAL NOT NULL
+ parent_id INT NOT NULL
 );
 
 ALTER TABLE student ADD CONSTRAINT PK_student PRIMARY KEY (id);
 
 
 CREATE TABLE student_payment (
- student_id SERIAL NOT NULL,
+ student_id INT NOT NULL,
  amount NUMERIC(32)
 );
 
@@ -101,20 +101,20 @@ ALTER TABLE student_payment ADD CONSTRAINT PK_student_payment PRIMARY KEY (stude
 
 
 CREATE TABLE application (
- student_id SERIAL NOT NULL,
+ student_id INT NOT NULL,
  first_name VARCHAR(50) NOT NULL,
  last_name VARCHAR(50) NOT NULL,
  age VARCHAR(10) NOT NULL,
  personal_number VARCHAR(12) NOT NULL,
  instrument VARCHAR(50) NOT NULL,
- admin_staff_id SERIAL
+ admin_staff_id INT
 );
 
 ALTER TABLE application ADD CONSTRAINT PK_application PRIMARY KEY (student_id);
 
 
 CREATE TABLE appointment (
- schedule_id SERIAL NOT NULL,
+ schedule_id INT NOT NULL,
  time TIMESTAMP(10),
  date DATE
 );
@@ -123,7 +123,7 @@ ALTER TABLE appointment ADD CONSTRAINT PK_appointment PRIMARY KEY (schedule_id);
 
 
 CREATE TABLE audition (
- student_id SERIAL NOT NULL,
+ student_id INT NOT NULL,
  is_passed VARCHAR(5)
 );
 
@@ -131,7 +131,7 @@ ALTER TABLE audition ADD CONSTRAINT PK_audition PRIMARY KEY (student_id);
 
 
 CREATE TABLE email (
- email VARCHAR(50) NOT NULL,
+ email VARCHAR(50) NOT NULL UNIQUE,
  student_id INT NOT NULL,
  parent_id INT NOT NULL,
  instructor_id INT NOT NULL
@@ -141,18 +141,18 @@ ALTER TABLE email ADD CONSTRAINT PK_email PRIMARY KEY (email,student_id,parent_i
 
 
 CREATE TABLE individual_lesson (
- schedule_id SERIAL NOT NULL,
+ schedule_id INT NOT NULL,
  level VARCHAR(50),
  instrument VARCHAR(50),
- student_id SERIAL NOT NULL,
- instructor_id SERIAL NOT NULL
+ student_id INT NOT NULL,
+ instructor_id INT NOT NULL
 );
 
 ALTER TABLE individual_lesson ADD CONSTRAINT PK_individual_lesson PRIMARY KEY (schedule_id);
 
 
 CREATE TABLE instructor_payment (
- instructor_id SERIAL NOT NULL,
+ instructor_id INT NOT NULL,
  amount NUMERIC(32)
 );
 
@@ -160,7 +160,7 @@ ALTER TABLE instructor_payment ADD CONSTRAINT PK_instructor_payment PRIMARY KEY 
 
 
 CREATE TABLE number_of_children (
- parent_id SERIAL NOT NULL,
+ parent_id INT NOT NULL,
  number_of_children INT
 );
 
@@ -168,17 +168,18 @@ ALTER TABLE number_of_children ADD CONSTRAINT PK_number_of_children PRIMARY KEY 
 
 
 CREATE TABLE phone_number (
- phone_number VARCHAR(15) NOT NULL,
- parent_id SERIAL NOT NULL,
- student_id SERIAL NOT NULL,
- instructor_id SERIAL NOT NULL
+ phone_number VARCHAR(15) NOT NULL UNIQUE,
+ parent_id INT NOT NULL,
+ student_id INT NOT NULL,
+ instructor_id INT NOT NULL
 );
 
 ALTER TABLE phone_number ADD CONSTRAINT PK_phone_number PRIMARY KEY (phone_number,parent_id,student_id,instructor_id);
 
 
 CREATE TABLE rental_agreement_for_instrument (
- student_id SERIAL NOT NULL,
+ student_id INT NOT NULL,
+ instrument_id INT NOT NULL,
  length INT,
  start_date DATE,
  end_date DATE
@@ -188,7 +189,7 @@ ALTER TABLE rental_agreement_for_instrument ADD CONSTRAINT PK_rental_agreement_f
 
 
 CREATE TABLE schedualed_time_slot (
- schedule_id SERIAL NOT NULL,
+ schedule_id INT NOT NULL,
  time TIMESTAMP(10),
  date DATE
 );
@@ -197,25 +198,25 @@ ALTER TABLE schedualed_time_slot ADD CONSTRAINT PK_schedualed_time_slot PRIMARY 
 
 
 CREATE TABLE ensemble (
- schedule_id SERIAL NOT NULL,
+ schedule_id INT NOT NULL,
  target_genre VARCHAR(50),
- min_number_of_students VARCHAR(10) NOT NULL,
- max_number_of_students VARCHAR(10) NOT NULL,
- instructor_id SERIAL NOT NULL,
- student_id SERIAL NOT NULL
+ min_number_of_students INT NOT NULL,
+ max_number_of_students INT NOT NULL,
+ instructor_id INT NOT NULL,
+ student_id[] INT NOT NULL
 );
 
 ALTER TABLE ensemble ADD CONSTRAINT PK_ensemble PRIMARY KEY (schedule_id);
 
 
 CREATE TABLE group_lesson (
- schedule_id SERIAL NOT NULL,
- min_number_of_students VARCHAR(10) NOT NULL,
- max_number_of_students VARCHAR(10) NOT NULL,
+ schedule_id INT NOT NULL,
+ min_number_of_students INT NOT NULL,
+ max_number_of_students INT NOT NULL,
  level VARCHAR(50),
  Instrument VARCHAR(50),
- instructor_id SERIAL NOT NULL,
- student_id SERIAL NOT NULL
+ instructor_id INT NOT NULL,
+ student_id INT NOT NULL
 );
 
 ALTER TABLE group_lesson ADD CONSTRAINT PK_group_lesson PRIMARY KEY (schedule_id);
@@ -225,16 +226,16 @@ CREATE TABLE instrument (
  id SERIAL NOT NULL,
  brand VARCHAR(50) NOT NULL,
  type VARCHAR(50) NOT NULL,
- quantity INT NOT NULL,
- price NUMERIC(32) NOT NULL,
- student_id SERIAL
+ number_rented INT NOT NULL,
+ full_stock INT NOT NULL,
+ price NUMERIC(32) NOT NULL
 );
 
 ALTER TABLE instrument ADD CONSTRAINT PK_instrument PRIMARY KEY (id);
 
 
 CREATE TABLE price (
- schedule_id SERIAL NOT NULL,
+ schedule_id INT NOT NULL,
  lesson_type VARCHAR(50) NOT NULL,
  level_of_lesson VARCHAR(50) NOT NULL,
  special_day_addon VARCHAR(50) NOT NULL
@@ -284,7 +285,7 @@ ALTER TABLE phone_number ADD CONSTRAINT FK_phone_number_2 FOREIGN KEY (instructo
 
 
 ALTER TABLE rental_agreement_for_instrument ADD CONSTRAINT FK_rental_agreement_for_instrument_0 FOREIGN KEY (student_id) REFERENCES student (id);
-
+ALTER TABLE rental_agreement_for_instrument ADD CONSTRAINT FK_rental_agreement_for_instrument_1 FOREIGN KEY (instrument_id) REFERENCES instrument (id);
 
 ALTER TABLE schedualed_time_slot ADD CONSTRAINT FK_schedualed_time_slot_0 FOREIGN KEY (schedule_id) REFERENCES schedule (id);
 
@@ -298,8 +299,6 @@ ALTER TABLE group_lesson ADD CONSTRAINT FK_group_lesson_0 FOREIGN KEY (schedule_
 ALTER TABLE group_lesson ADD CONSTRAINT FK_group_lesson_1 FOREIGN KEY (instructor_id) REFERENCES instuctor (id);
 ALTER TABLE group_lesson ADD CONSTRAINT FK_group_lesson_2 FOREIGN KEY (student_id) REFERENCES student (id);
 
-
-ALTER TABLE instrument ADD CONSTRAINT FK_instrument_0 FOREIGN KEY (student_id) REFERENCES rental_agreement_for_instrument (student_id);
 
 
 ALTER TABLE price ADD CONSTRAINT FK_price_0 FOREIGN KEY (schedule_id) REFERENCES group_lesson (schedule_id);
